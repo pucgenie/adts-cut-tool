@@ -18,7 +18,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class AdtsFrameSpliteratorTest {
+public class ADTSFrameSpliteratorTest {
 
     @Mock
     private BitWrapper wrapper;
@@ -37,7 +37,7 @@ public class AdtsFrameSpliteratorTest {
 
     @Test
     public void tryAdvance_emptyBuffer_returnsFalseAndDoesNotConsume() {
-        AdtsFrameSpliterator spliterator = new AdtsFrameSpliterator(ByteBuffer.allocate(0), wrapper);
+        ADTSFrameSpliterator spliterator = new ADTSFrameSpliterator(ByteBuffer.allocate(0), wrapper);
 
         assertFalse(spliterator.tryAdvance(action));
         verifyZeroInteractions(action);
@@ -45,7 +45,7 @@ public class AdtsFrameSpliteratorTest {
 
     @Test
     public void tryAdvance_bufferWithOneByte_returnsFalseAndDoesNotConsume() {
-        AdtsFrameSpliterator spliterator = new AdtsFrameSpliterator(ByteBuffer.allocate(1), wrapper);
+        ADTSFrameSpliterator spliterator = new ADTSFrameSpliterator(ByteBuffer.allocate(1), wrapper);
 
         assertFalse(spliterator.tryAdvance(action));
         verifyZeroInteractions(action);
@@ -53,7 +53,7 @@ public class AdtsFrameSpliteratorTest {
 
     @Test
     public void tryAdvance_bufferWithTenBytes_returnsFalseAndDoesNotConsume() {
-        AdtsFrameSpliterator spliterator = new AdtsFrameSpliterator(ByteBuffer.allocate(10), wrapper);
+        ADTSFrameSpliterator spliterator = new ADTSFrameSpliterator(ByteBuffer.allocate(10), wrapper);
 
         assertFalse(spliterator.tryAdvance(action));
         verifyZeroInteractions(action);
@@ -62,7 +62,7 @@ public class AdtsFrameSpliteratorTest {
     @Test
     public void tryAdvance_bufferWithOneSyncWord_consumesOnce() {
         ByteBuffer buffer = bytes(0b11111111, 0b11110000);
-        AdtsFrameSpliterator spliterator = new AdtsFrameSpliterator(buffer, wrapper);
+        ADTSFrameSpliterator spliterator = new ADTSFrameSpliterator(buffer, wrapper);
 
         assertTrue(spliterator.tryAdvance(action));
         assertFalse(spliterator.tryAdvance(action));
@@ -72,7 +72,7 @@ public class AdtsFrameSpliteratorTest {
     @Test
     public void tryAdvance_bufferWithOneSyncWordAndBits_consumesOnce() {
         ByteBuffer buffer = bytes(0b11111111, 0b11111111);
-        AdtsFrameSpliterator spliterator = new AdtsFrameSpliterator(buffer, wrapper);
+        ADTSFrameSpliterator spliterator = new ADTSFrameSpliterator(buffer, wrapper);
 
         assertTrue(spliterator.tryAdvance(action));
         assertFalse(spliterator.tryAdvance(action));
@@ -82,7 +82,7 @@ public class AdtsFrameSpliteratorTest {
     @Test
     public void tryAdvance_bufferWithOneSyncWordAndBytes_consumesOnce() {
         ByteBuffer buffer = bytes(0, 0b11111111, 0b11110000, 0);
-        AdtsFrameSpliterator spliterator = new AdtsFrameSpliterator(buffer, wrapper);
+        ADTSFrameSpliterator spliterator = new ADTSFrameSpliterator(buffer, wrapper);
 
         assertTrue(spliterator.tryAdvance(action));
         assertFalse(spliterator.tryAdvance(action));
@@ -92,7 +92,7 @@ public class AdtsFrameSpliteratorTest {
     @Test
     public void tryAdvance_bufferWithTwoSyncWords_consumesTwice() {
         ByteBuffer buffer = bytes(0b11111111, 0b11110000, 0b11111111, 0b11110000);
-        AdtsFrameSpliterator spliterator = new AdtsFrameSpliterator(buffer, wrapper);
+        ADTSFrameSpliterator spliterator = new ADTSFrameSpliterator(buffer, wrapper);
 
         assertTrue(spliterator.tryAdvance(action));
         assertTrue(spliterator.tryAdvance(action));

@@ -11,11 +11,11 @@ import static java.nio.channels.FileChannel.open;
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
 import static java.nio.file.StandardOpenOption.WRITE;
 
-public class FrameConsumer implements Closeable, Consumer<AdtsFrame> {
+public class FileADTSFrameConsumer implements IADTSFrameConsumer {
 
     private final FileChannel channel;
 
-    public FrameConsumer(Path path) throws IOException {
+    public FileADTSFrameConsumer(Path path) throws IOException {
         channel = open(path, CREATE_NEW, WRITE);
     }
 

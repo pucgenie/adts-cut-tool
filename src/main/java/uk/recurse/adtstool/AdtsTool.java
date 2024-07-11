@@ -5,15 +5,19 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.recurse.adtstool.stream.Cutter;
-import uk.recurse.adtstool.stream.FrameConsumer;
-import uk.recurse.adtstool.stream.StreamSupplier;
+import uk.recurse.adtstool.stream.*;
 import uk.recurse.bitwrapper.BitWrapper;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Path;
 import java.time.LocalTime;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public class AdtsTool {
 
@@ -28,6 +32,7 @@ public class AdtsTool {
                 jCommander.usage();
             } else {
                 jCommander.parse(args);
+
                 run(arguments);
             }
         } catch (UncheckedIOException e) {
@@ -38,8 +43,18 @@ public class AdtsTool {
     }
 
     private static void run(Arguments arguments) throws IOException {
-        StreamSupplier supplier = new StreamSupplier(arguments.input, BitWrapper.create());
-        try (FrameConsumer consumer = new FrameConsumer(arguments.output)) {
+        final Supplier<Stream<AdtsFrame>> supplier;
+        final BitWrapper bitWrapper = BitWrapper.create();
+        if (arguments.input != null) {
+            supplier = new FileADTSFrameSupplier(arguments.input, bitWrapper);
+        } else {
+            //new ReadableByteChannel();
+            final ReadableByteChannel stdin = Channels.newChannel(System.in);
+            supplier = () -> {return StreamSupport.stream(new ADTSFrameSpliterator(new MappedByteBuffer() {
+
+            }, bitWrapper), false);};
+        }
+        try (IADTSFrameConsumer consumer = new FileADTSFrameConsumer(arguments.output)) {
             Cutter cutter = new Cutter(supplier, consumer);
             cutter.write(arguments.start, arguments.end);
             log.info("Finished writing to {}", arguments.output);
@@ -50,14 +65,14 @@ public class AdtsTool {
         @Parameter(
                 names = {"-i", "--input"},
                 description = "Input file",
-                required = true
+                required = false
         )
         Path input;
 
         @Parameter(
                 names = {"-o", "--output"},
                 description = "Output file",
-                required = true
+                required = false
         )
         Path output;
 
